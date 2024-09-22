@@ -1,101 +1,74 @@
-import Image from "next/image";
+'use client';
+import { useState } from 'react';
 
-export default function Home() {
+const HomePage = () => {
+  const [image, setImage] = useState(null);
+  const [outputFormat, setOutputFormat] = useState('jpeg'); // Default format is 'jpeg'
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]); // Set the uploaded file to state
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!image) {
+      alert('Please upload an image first.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', image); // Add image file to the form data
+    formData.append('outputFormat', outputFormat); // Add selected format
+
+    const response = await fetch('/api/convert', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob); // Create a URL for the converted image
+      window.open(url); // Open the converted image in a new tab
+    } else {
+      alert('Image conversion failed.');
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">Image Converter</h1>
+      <p className="mb-4 text-center text-gray-700">
+        Upload your image and select the desired format for conversion.
+      </p>
+      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
+        <input
+          type="file"
+          onChange={handleImageChange}
+          accept="image/*"
+          className="border border-gray-300 rounded p-2 w-full mb-4"
+          required
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <label className="block mb-2 font-semibold text-gray-700">Select Output Format:</label>
+        <select
+          onChange={(e) => setOutputFormat(e.target.value)}
+          className="border border-gray-300 rounded p-2 w-full mb-4"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <option value="jpeg">JPEG</option>
+          <option value="png">PNG</option>
+          <option value="jpg">JPG</option>
+          <option value="avif">AVIF</option>
+          <option value="webp">WebP</option>
+        </select>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Convert Image
+        </button>
+      </form>
     </div>
   );
-}
+};
+
+export default HomePage;
